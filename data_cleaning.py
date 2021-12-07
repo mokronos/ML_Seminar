@@ -21,5 +21,5 @@ t = range(int(df.iloc[0]['length']))
 
 print(df['rpm'].value_counts())
 
-plt.scatter(t, df['raw audio'][0])
+plt.plot(t, df['raw audio'][0])
 plt.show()
