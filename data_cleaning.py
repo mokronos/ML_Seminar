@@ -1,44 +1,25 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.io import wavfile
-from scipy.fft import fft, fftfreq
-import re
+from utils import *
 
-filename = "./data/01_EM_Prüfmessungen_Audiofiles/#1/EM1_RPM3000_D0_Nr(1).wav"
-sr, data = wavfile.read(filename)
-duration = data.shape[0]/sr
+#pd.set_option("display.max_rows", None, "display.max_columns", None)
 
-x = [re.split(filename,i) for i in ["EM\d","EM"]]
-print(x)
+path = './data'
 
+df = gen_dataset(path)
+df = df.sort_values(by=['rpm'])
+print(df)
+plots = df.shape[0] 
 
+t = range(int(df.iloc[0]['length']))
+#fig, axes = plt.subplots(20,10,figsize=(100,100),sharex='row')
+#for idx, audio in enumerate(df['raw audio'][:plots]):
+#    axes[idx%20, idx//20].scatter(t,audio)
+#    axes[idx%20, idx//20].set_ylim([-10000,10000])
+#    axes[idx%20, idx//20].title.set_text(df['filename'][idx])
+#    print(idx)
 
+print(df['rpm'].value_counts())
 
-
-smplr = 44100
-dur = 5
-def generate_sine_wave(freq, sample_rate, duration):
-    x = np.linspace(0, duration, sample_rate * duration, endpoint=False)
-    frequencies = x * freq
-    # 2pi because np.sin takes radians
-    y = np.sin((2 * np.pi) * frequencies)
-    return x, y
-
-x, y = generate_sine_wave(400, smplr, dur)
-_, y2 = generate_sine_wave(400, smplr, dur)
-
-max_val = np.amax(y)
-norm_y = np.int16((y/max_val) * 32767)
-
-wavfile.write("data/sine.wav", smplr, norm_y)
-
-N = smplr * dur
-N2 = data.shape[0]
-
-yf = fft(data)
-xf = fftfreq(N2, 1 / sr)
-
-plt.plot(xf, np.abs(yf))
-
-
-
+plt.scatter(t, df['raw audio'][0])
+plt.show()
