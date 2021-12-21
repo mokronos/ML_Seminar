@@ -1,6 +1,6 @@
-#Machine Learning Seminar
+# Machine Learning Seminar
 
-##Data Analysis
+## Data Analysis
 
 1. pandas framework mit allen relevanten meta informationen. 
 
