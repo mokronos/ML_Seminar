@@ -3,6 +3,8 @@ import os
 import numpy as np
 from scipy.io.wavfile import read as readwav
 import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.fft import fft, fftfreq
 
 def extract_meta(filename):
 
@@ -30,10 +32,19 @@ def gen_dataset(path):
                 meta['length'] = int(len(data))
                 df = df.append(dict({'raw audio' : data}, **meta), ignore_index = True)
 
+    limits = [1, 4.5] #seconds
+    samplef = df.iloc[0]["samplef"]
+    df["clip"] = df["raw audio"].apply(lambda x: x[int(limits[0]*samplef):int(limits[1]*samplef)])
     return df
 
 
-def get_fft(data, length, samplef):
-    return
+def get_fft(data, samplef):
 
-    
+    T = 1/samplef
+    N = data.shape[0]
+
+    ps = fft(data)
+    freqs = fftfreq(N, T)[:N//2]
+
+    psnorm = 2.0/N * np.abs(ps[0:N//2])
+    return freqs, psnorm
