@@ -1,50 +1,35 @@
-import re
-import os
 import numpy as np
-from scipy.io.wavfile import read as readwav
 import pandas as pd
 import matplotlib.pyplot as plt
-from scipy.fft import fft, fftfreq
+import librosa
+import scipy.signal
 
-def extract_meta(filename):
+def gen_dataset():
 
-    filename = filename.split("/")[-1]
-    pat = r"EM(\d+)_RPM(\d+)_D(\d+)_Nr\((\d+)\)\.wav"
-    lab = ["cycles","rpm","dist","special","filename"]
-    res = re.findall(pat, filename)
-    meta = list(map(int,res[0]))
-    meta.append(filename)
-    meta = dict(zip(lab,meta))
+    path = "data/MLSeminarSchraube/Audioaufnahmen/"
+    prefix = "schraubeM"
+    suffix = "_objectnr_1.wav"
+    sizes = [3, 4, 5, 6, 8, 10, 12]
+
+    filenames = [("{}"*4).format(path, prefix, size, suffix) for size in sizes] 
+
+    data, sr = librosa.load(filenames[1])
+
+    return data, sr
+
     
-    return meta
+def cut(data, sr):
+    
+    # spectrum und phase berechnen
+    spectrum, phase = librosa.magphase(librosa.stft(data))
+    # rms berechnen
+    rms_raw = librosa.feature.rms(S=spectrum)
+    # rms glätten
+    rms_hat = scipy.signal.savgol_filter(rms_raw, 51, 3)
+    rms = rms_hat[0]
 
-def gen_dataset(path):
+    plt.plot(rms_hat[0])
+    plt.show()
 
-    df = pd.DataFrame()
-
-    for root,_, filenames in os.walk(path):
-        for file in filenames:
-            if file.split(".")[-1] == "wav":
-                filepath = f"{root}/{file}"
-                samplef, data = readwav(filepath)
-                meta = extract_meta(filepath)
-                meta["samplef"] = samplef
-                meta['length'] = int(len(data))
-                df = df.append(dict({'raw audio' : data}, **meta), ignore_index = True)
-
-    limits = [1, 4.5] #seconds
-    samplef = df.iloc[0]["samplef"]
-    df["clip"] = df["raw audio"].apply(lambda x: x[int(limits[0]*samplef):int(limits[1]*samplef)])
-    return df
-
-
-def get_fft(data, samplef):
-
-    T = 1/samplef
-    N = data.shape[0]
-
-    ps = fft(data)
-    freqs = fftfreq(N, T)[:N//2]
-
-    psnorm = 2.0/N * np.abs(ps[0:N//2])
-    return freqs, psnorm
+data, sr = gen_dataset()
+cut(data, sr)
