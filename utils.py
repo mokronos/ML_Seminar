@@ -13,7 +13,7 @@ def gen_dataset():
 
     filenames = [("{}"*4).format(path, prefix, size, suffix) for size in sizes] 
 
-    data, sr = librosa.load(filenames[1])
+    data, sr = librosa.load(filenames[0])
 
     return data, sr
 
@@ -28,7 +28,12 @@ def cut(data, sr):
     rms_hat = scipy.signal.savgol_filter(rms_raw, 51, 3)
     rms = rms_hat[0]
 
-    plt.plot(rms_hat[0])
+    minimum = np.percentile(rms, 80)
+    peaks_rms, properies = scipy.signal.find_peaks(rms, width = 100, height = minimum, distance=50)
+
+    print(peaks_rms)
+
+    plt.plot(rms)
     plt.show()
 
 data, sr = gen_dataset()
