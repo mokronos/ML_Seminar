@@ -64,18 +64,18 @@ def cut(long_df):
     return long_df
 
 def cut_samples(long_df):
-    samples_df = pd.DataFrame(columns= ["rms_sample", "diameter"]) 
+    samples_df = pd.DataFrame(columns= ["raw_sample", "diameter"]) 
     for i in range(long_df.shape[0]):
-        samples = cut_peaks(long_df["rms"][i],long_df["cuts"][i])
+        samples = cut_peaks(long_df["data_raw"][i],long_df["cuts"][i])
         dia = [long_df["diameter"][i]] * len(samples)
-        samples_df = samples_df.append(pd.DataFrame({"rms_sample": samples, "diameter": dia}), ignore_index=True)
+        samples_df = samples_df.append(pd.DataFrame({"raw_sample": samples, "diameter": dia}), ignore_index=True)
 
     return samples_df
 
 def cut_peaks(rms, peaks):
     rms_samples = []
     for i in range(0,len(peaks),2):
-        rms_samples.append(rms[peaks[i]:peaks[i+1]])
+        rms_samples.append(rms[peaks[i]*512:peaks[i+1]*512])
     
     return rms_samples
 
