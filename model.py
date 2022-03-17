@@ -77,13 +77,11 @@ def feat_sel(X, y):
         print("Mean absolute percentage error: {}".format(mean_percentage))
 
     lin_reg_eval()
-
-    return opt_feat_count
     
 features = pd.read_pickle("features.pkl")
 pd.set_option('display.max_columns', None)
+# print(features)
 
 y = features["diameter"]
 X = features.drop("diameter",  axis=1)
-
 feat_sel(X,y)
